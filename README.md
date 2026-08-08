@@ -31,7 +31,22 @@ The system is separated into a Python backend and a React frontend to efficientl
 
 - Node.js (for the frontend)
 - Python 3.10+ (for the backend)
-- A valid Avanza session (requires a `secret.json` in the root folder to handle authentication tokens).
+- A valid Avanza session. You must provide a `secret.json` file in the root folder to handle authentication tokens.
+
+### Avanza Authentication Setup (`secret.json`)
+
+To authenticate with the Avanza API, copy the provided `secret.json.sample` to `secret.json` and fill in your details:
+
+```json
+{
+  "username": "your_avanza_username",
+  "password": "your_avanza_password",
+  "totpSecret": "YOUR_TOTP_SECRET_STRING",
+  "accountId": "your_avanza_account_id"
+}
+```
+
+**Note on `totpSecret`:** This is the Time-based One-Time Password secret used for Two-Factor Authentication. For instructions on how to extract this secret from your Avanza account, please refer to the [avanza-api documentation on getting a TOTP secret](https://github.com/Qluxzz/avanza#getting-a-totp-secret).
 
 ## How to Build and Run
 
