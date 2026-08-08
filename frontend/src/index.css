@@ -146,6 +146,67 @@ tr:hover td {
   background: rgba(15, 23, 42, 0.8);
 }
 
+.tabs-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  margin-bottom: 0.75rem;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  -webkit-overflow-scrolling: touch;
+  /* Better scrolling on iOS */
+}
+
+.tabs-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabs-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.tab {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  margin-left: -1px;
+}
+
+.tab:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  margin-left: 0;
+}
+
+.tab:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.tab:hover {
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+}
+
+.tab.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: white;
+  font-weight: 600;
+}
+
 /* Animations */
 @keyframes flash-green {
   0% {
@@ -199,6 +260,26 @@ tr:hover td {
   .dropdown {
     width: 100%;
     padding: 6px 10px;
+  }
+
+  .tabs-container {
+    gap: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .tab {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .tab:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+
+  .tab:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
   }
 
   table {

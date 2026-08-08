@@ -169,18 +169,39 @@ function App() {
               <option key={c.orderbookId} value={c.orderbookId}>{c.name}</option>
             ))}
           </select>
-          
-          <select 
-            className="dropdown" 
-            value={selectedDate} 
-            onChange={e => setSelectedDate(e.target.value)}
-          >
-            {endDates.map(date => (
-              <option key={date} value={date}>{date}</option>
-            ))}
-          </select>
         </div>
       </div>
+      
+      {endDates.length > 0 && (
+        <div className="tabs-container">
+          {(() => {
+            const getDTE = (dateStr) => {
+              const target = new Date(dateStr);
+              const today = new Date();
+              target.setHours(0, 0, 0, 0);
+              today.setHours(0, 0, 0, 0);
+              const diffTime = target - today;
+              return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            };
+            
+            const formatTabDate = (dateStr) => {
+              const [year, month, day] = dateStr.split('-');
+              const dte = getDTE(dateStr);
+              return `${month}${day} ${dte}DTE`;
+            };
+
+            return endDates.map(date => (
+              <div 
+                key={date} 
+                className={`tab ${selectedDate === date ? 'active' : ''}`}
+                onClick={() => setSelectedDate(date)}
+              >
+                {formatTabDate(date)}
+              </div>
+            ));
+          })()}
+        </div>
+      )}
       
       <div 
         className="glass-panel table-container" 
