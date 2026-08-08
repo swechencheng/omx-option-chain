@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Secrets
+secret.json
+
+# Node
+node_modules/
+dist/
+.env.local
+
+# Temp
+scratch/
+backend.log
+backend.err
+frontend.log
+frontend.err
+*.plist
+.DS_Store

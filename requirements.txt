@@ -1,0 +1,5 @@
+avanza-api @ git+https://github.com/Qluxzz/avanza.git
+curl_cffi==0.15.0
+fastapi==0.137.1
+uvicorn[standard]==0.49.0
+requests
