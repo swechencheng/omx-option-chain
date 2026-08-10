@@ -54,7 +54,14 @@ def fetch_omxs30():
         headers={"X-SecurityToken": getattr(avanza, "_security_token", "")},
     )
     if response.status_code == 200:
-        OMXS30_CACHE = response.json().get("constituents", [])
+        constituents = response.json().get("constituents", [])
+        index_data = {
+            "name": "OMX Stockholm 30",
+            "countryCode": "SE",
+            "orderbookId": "19002",
+            "changePercent": 0.0,
+        }
+        OMXS30_CACHE = [index_data] + constituents
     return OMXS30_CACHE
 
 

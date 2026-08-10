@@ -148,5 +148,11 @@
     "ibkr_symbol": "NIBE.B",
     "exchange": "OMS",
     "currency": "SEK"
+  },
+  "19002": {
+    "ibkr_symbol": "OMXS30",
+    "secType": "IND",
+    "exchange": "OMS",
+    "currency": "SEK"
   }
 }

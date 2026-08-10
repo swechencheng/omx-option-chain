@@ -8,7 +8,7 @@ import json
 import logging
 import os
 
-from ib_async import IB, Option, Stock
+from ib_async import IB, Option, Stock, Index
 
 logger = logging.getLogger("ibkr_client")
 
@@ -159,9 +159,13 @@ class IBKRClient:
         ibkr_symbol = map_info["ibkr_symbol"]
         exchange = map_info.get("exchange", "OMS")
         currency = map_info.get("currency", "SEK")
+        sec_type = map_info.get("secType", "STK")
 
-        # Usually the underlying is a Stock on SFB (Stockholm)
-        stk = Stock(ibkr_symbol, "SFB", currency)
+        if sec_type == "IND":
+            stk = Index(ibkr_symbol, "OMS", currency)
+        else:
+            stk = Stock(ibkr_symbol, "SFB", currency)
+
         try:
             await self.ib.qualifyContractsAsync(stk)
         except Exception as e:
