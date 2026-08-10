@@ -31,6 +31,7 @@ function App() {
   const [ibkrConnected, setIbkrConnected] = useState(false);
   const [selectedLegs, setSelectedLegs] = useState([]);
   const [walkState, setWalkState] = useState(null);
+  const [ibkrValidExpiries, setIbkrValidExpiries] = useState([]);
   
   const wsRef = useRef(null);
   const tableContainerRef = useRef(null);
@@ -103,6 +104,25 @@ function App() {
     // Clear legs when date changes
     setSelectedLegs([]);
   }, [selectedUnderlying, selectedDate, endDates]);
+
+  // Fetch IBKR valid expiries when connected and underlying changes
+  useEffect(() => {
+    if (ibkrConnected && selectedUnderlying) {
+      fetch(`${API_BASE}/ibkr/expiries?underlying_id=${selectedUnderlying}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.expiries) setIbkrValidExpiries(data.expiries);
+        })
+        .catch(err => console.error("Error fetching IBKR expiries", err));
+    } else {
+      setIbkrValidExpiries([]);
+    }
+  }, [ibkrConnected, selectedUnderlying]);
+
+  // Check if IBKR supports the currently selected Avanza date
+  const ibkrSupportsExpiry = ibkrConnected && selectedDate
+    ? ibkrValidExpiries.includes(selectedDate.replace(/-/g, ''))
+    : false;
 
   const subscribeWs = (orderbookIds, underlyingId) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -291,20 +311,23 @@ function App() {
           selectedLegs={selectedLegs}
           onLegToggle={handleLegToggle}
           ibkrConnected={ibkrConnected}
+          ibkrSupportsExpiry={ibkrSupportsExpiry}
         />
       </div>
-
-      <OrderPanel
-        selectedLegs={selectedLegs}
-        onClearLegs={() => setSelectedLegs([])}
-        wsRef={wsRef}
-        apiBase={API_BASE}
-        ibkrConnected={ibkrConnected}
-        underlyingId={selectedUnderlying}
-        selectedDate={selectedDate}
-        walkState={walkState}
-        onWalkStateChange={setWalkState}
-      />
+      {selectedLegs.length > 0 && (
+        <OrderPanel 
+          selectedLegs={selectedLegs} 
+          onClearLegs={() => setSelectedLegs([])}
+          wsRef={wsRef}
+          apiBase={API_BASE}
+          ibkrConnected={ibkrConnected}
+          ibkrSupportsExpiry={ibkrSupportsExpiry}
+          underlyingId={selectedUnderlying}
+          selectedDate={selectedDate}
+          walkState={walkState}
+          onWalkStateChange={setWalkState}
+        />
+      )}
     </div>
   );
 }

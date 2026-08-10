@@ -8,7 +8,7 @@ import json
 import logging
 import os
 
-from ib_async import IB, Option
+from ib_async import IB, Option, Stock
 
 logger = logging.getLogger("ibkr_client")
 
@@ -144,7 +144,44 @@ class IBKRClient:
         logger.warning(
             f"Using default tick size {default_tick} for {contract.localSymbol}"
         )
-        return default_tick
+        return round(float(default_tick), 2)
+
+    async def get_valid_expiries(self, avanza_underlying_id: str) -> list[str]:
+        """Get all valid Option expirations (YYYYMMDD) for an underlying."""
+        if not self.connected:
+            return []
+
+        sym_map = _load_symbol_map()
+        map_info = sym_map.get(str(avanza_underlying_id))
+        if not map_info:
+            return []
+
+        ibkr_symbol = map_info["ibkr_symbol"]
+        exchange = map_info.get("exchange", "OMS")
+        currency = map_info.get("currency", "SEK")
+
+        # Usually the underlying is a Stock on SFB (Stockholm)
+        stk = Stock(ibkr_symbol, "SFB", currency)
+        try:
+            await self.ib.qualifyContractsAsync(stk)
+        except Exception as e:
+            logger.error(f"Failed to qualify stock {ibkr_symbol} to get expiries: {e}")
+            return []
+
+        try:
+            chains = await self.ib.reqSecDefOptParamsAsync(
+                stk.symbol, "", stk.secType, stk.conId
+            )
+        except Exception as e:
+            logger.error(f"Failed to get option params for {ibkr_symbol}: {e}")
+            return []
+
+        expiries = set()
+        for chain in chains:
+            if chain.exchange == exchange:
+                expiries.update(chain.expirations)
+
+        return sorted(list(expiries))
 
 
 # --- Per-device config persistence ---

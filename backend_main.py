@@ -171,6 +171,16 @@ async def ibkr_tick_size(
     }
 
 
+@app.get("/api/ibkr/expiries")
+async def ibkr_expiries(underlying_id: str = Query(...)):
+    client = get_ibkr_client()
+    if not client.connected:
+        return {"error": "Not connected to IBKR"}
+
+    expiries = await client.get_valid_expiries(underlying_id)
+    return {"expiries": expiries}
+
+
 # --- WebSocket endpoint (extended with order placement) ---
 
 

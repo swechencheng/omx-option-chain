@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, underlyingId, selectedDate, walkState, onWalkStateChange: setWalkState }) => {
+const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, ibkrSupportsExpiry, underlyingId, selectedDate, walkState, onWalkStateChange: setWalkState }) => {
   const [expanded, setExpanded] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [tpEnabled, setTpEnabled] = useState(false);
@@ -277,10 +277,16 @@ const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, 
             </div>
           </div>
 
+          {!ibkrSupportsExpiry && ibkrConnected && (
+            <div className="expiry-warning" style={{color: '#f44336', fontSize: '0.85rem', marginBottom: '8px', textAlign: 'center'}}>
+              ⚠️ IBKR does not support options for this expiry date.
+            </div>
+          )}
+
           <button
             className={`order-submit-btn ${actionColor}`}
             onClick={placeOrder}
-            disabled={!ibkrConnected || !!walkState}
+            disabled={!ibkrConnected || !ibkrSupportsExpiry || !!walkState}
           >
             {walkState
               ? `Walking... ${walkState.currentPrice?.toFixed(2) || ''} (step ${walkState.step})`
@@ -344,7 +350,7 @@ const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, 
           <button
             className={`order-place-btn ${actionColor}`}
             onClick={(e) => { e.stopPropagation(); placeOrder(); }}
-            disabled={!ibkrConnected}
+            disabled={!ibkrConnected || !ibkrSupportsExpiry}
           >
             <div className="btn-prices">
               <span className="btn-price-label">Bid</span>

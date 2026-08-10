@@ -33,7 +33,7 @@ const AnimatedCell = ({ value, className = "", onClick, selected, selectedPos, d
   );
 };
 
-const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, containerRef, selectedLegs, onLegToggle, ibkrConnected }) => {
+const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, containerRef, selectedLegs, onLegToggle, ibkrConnected, ibkrSupportsExpiry }) => {
   const rowRefs = useRef({});
   const hasFocusedOnce = useRef(false);
 
@@ -137,10 +137,12 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
           const putBidSelected = isLegSelected(strike, 'P', 'SELL') ? 'sell' : null;
           const putAskSelected = isLegSelected(strike, 'P', 'BUY') ? 'buy' : null;
           
-          const callBidDisabled = !ibkrConnected || rtCall.buyPrice === undefined || rtCall.buyPrice === null || rtCall.buyPrice === 0;
-          const callAskDisabled = !ibkrConnected || rtCall.sellPrice === undefined || rtCall.sellPrice === null || rtCall.sellPrice === 0;
-          const putBidDisabled = !ibkrConnected || rtPut.buyPrice === undefined || rtPut.buyPrice === null || rtPut.buyPrice === 0;
-          const putAskDisabled = !ibkrConnected || rtPut.sellPrice === undefined || rtPut.sellPrice === null || rtPut.sellPrice === 0;
+          const globallyDisabled = !ibkrConnected || !ibkrSupportsExpiry;
+          
+          const callBidDisabled = globallyDisabled || rtCall.buyPrice === undefined || rtCall.buyPrice === null || rtCall.buyPrice === 0;
+          const callAskDisabled = globallyDisabled || rtCall.sellPrice === undefined || rtCall.sellPrice === null || rtCall.sellPrice === 0;
+          const putBidDisabled = globallyDisabled || rtPut.buyPrice === undefined || rtPut.buyPrice === null || rtPut.buyPrice === 0;
+          const putAskDisabled = globallyDisabled || rtPut.sellPrice === undefined || rtPut.sellPrice === null || rtPut.sellPrice === 0;
 
           return (
             <tr 
