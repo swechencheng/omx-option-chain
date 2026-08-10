@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 const SettingsMenu = ({ apiBase, deviceId, onConnectionChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [host, setHost] = useState('127.0.0.1');
-  const [port, setPort] = useState('4001');
+  const [port, setPort] = useState('4002');
   const [connected, setConnected] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -126,7 +126,7 @@ const SettingsMenu = ({ apiBase, deviceId, onConnectionChange }) => {
               type="number"
               value={port}
               onChange={e => setPort(e.target.value)}
-              placeholder="4001"
+              placeholder="4002"
             />
           </div>
 

@@ -124,7 +124,7 @@ def ibkr_get_config(device_id: str = Query(...)):
     config = get_device_config(device_id)
     if config:
         return config
-    return {"host": "127.0.0.1", "port": 4001}
+    return {"host": "127.0.0.1", "port": 4002}
 
 
 @app.post("/api/ibkr/connect")

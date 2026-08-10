@@ -58,7 +58,8 @@ To authenticate with the Avanza API, copy the provided `secret.json.sample` to `
 ## How to Build and Run
 
 ### 1. IB Gateway / TWS Setup
-Ensure IB Gateway or TWS is running and API access is enabled. By default, the frontend will attempt to connect to `127.0.0.1:4001` (Paper Trading), but this can be adjusted in the UI Settings Menu.
+
+Ensure IB Gateway or TWS is running and API access is enabled. By default, the frontend will attempt to connect to `127.0.0.1:4002` (Paper Trading), but this can be adjusted in the UI Settings Menu.
 
 ### 2. Backend Setup
 

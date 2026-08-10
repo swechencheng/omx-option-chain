@@ -32,7 +32,7 @@ class IBKRClient:
     def __init__(self):
         self.ib = IB()
         self._host = "127.0.0.1"
-        self._port = 4001
+        self._port = 4002
         self._client_id = 50
         self._tick_cache: dict[str, float] = {}  # conId → minTick
 
