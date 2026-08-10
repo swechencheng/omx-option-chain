@@ -11,6 +11,13 @@ const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, 
   const panelRef = useRef(null);
   const dragStartY = useRef(null);
 
+  const handleClose = () => {
+    setWalkState(null);
+    setShowConfirmation(false);
+    setExpanded(false);
+    onClearLegs();
+  };
+
   // Listen for walk_progress messages from the websocket
   useEffect(() => {
     if (!wsRef?.current) return;
@@ -23,6 +30,11 @@ const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, 
         setWalkState(msg.data);
         if (msg.data.status === 'filled') {
           setShowConfirmation(true);
+        } else if (msg.data.status === 'cancelled') {
+          handleClose();
+        } else if (msg.data.status === 'error') {
+          alert(`Order Error: ${msg.data.message}`);
+          handleClose();
         }
       }
       // Call original handler for other message types
@@ -154,13 +166,6 @@ const OrderPanel = ({ selectedLegs, onClearLegs, wsRef, apiBase, ibkrConnected, 
     if (wsRef?.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ action: 'cancel_walk' }));
     }
-  };
-
-  const handleClose = () => {
-    setWalkState(null);
-    setShowConfirmation(false);
-    setExpanded(false);
-    onClearLegs();
   };
 
   const legsLabel = selectedLegs.length === 1
