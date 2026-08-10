@@ -10,6 +10,9 @@
 
   --flash-green: rgba(34, 197, 94, 0.3);
   --flash-red: rgba(239, 68, 68, 0.3);
+
+  --buy-color: #3b82f6;
+  --sell-color: #ef4444;
 }
 
 * {
@@ -50,7 +53,6 @@ table {
   border-collapse: collapse;
   text-align: right;
   font-size: 0.8rem;
-  /* compact font */
 }
 
 th {
@@ -146,6 +148,8 @@ tr:hover td {
   background: rgba(15, 23, 42, 0.8);
 }
 
+/* --- Expiry Tabs --- */
+
 .tabs-container {
   display: flex;
   overflow-x: auto;
@@ -155,7 +159,6 @@ tr:hover td {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   -webkit-overflow-scrolling: touch;
-  /* Better scrolling on iOS */
 }
 
 .tabs-container::-webkit-scrollbar {
@@ -207,7 +210,585 @@ tr:hover td {
   font-weight: 600;
 }
 
-/* Animations */
+/* --- Leg Selection Highlights --- */
+
+.leg-selected-buy {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+.leg-selected-sell {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.leg-selected-buy.leg-selected-left {
+  box-shadow: inset 2px 0 0 0 var(--buy-color), inset 0 2px 0 0 var(--buy-color), inset 0 -2px 0 0 var(--buy-color);
+}
+
+.leg-selected-buy.leg-selected-right {
+  box-shadow: inset -2px 0 0 0 var(--buy-color), inset 0 2px 0 0 var(--buy-color), inset 0 -2px 0 0 var(--buy-color);
+}
+
+.leg-selected-sell.leg-selected-left {
+  box-shadow: inset 2px 0 0 0 var(--sell-color), inset 0 2px 0 0 var(--sell-color), inset 0 -2px 0 0 var(--sell-color);
+}
+
+.leg-selected-sell.leg-selected-right {
+  box-shadow: inset -2px 0 0 0 var(--sell-color), inset 0 2px 0 0 var(--sell-color), inset 0 -2px 0 0 var(--sell-color);
+}
+
+/* --- Hamburger Settings --- */
+
+.settings-wrapper {
+  position: relative;
+}
+
+.hamburger-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 1.4rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-overlay {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 280px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.connected {
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.status-dot.disconnected {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.settings-field {
+  margin-bottom: 10px;
+}
+
+.settings-field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.settings-field input {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.settings-field input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.settings-status {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-btn.connect {
+  background: var(--buy-color);
+  color: white;
+}
+
+.settings-btn.connect:hover {
+  background: #2563eb;
+}
+
+.settings-btn.disconnect {
+  background: var(--sell-color);
+  color: white;
+}
+
+.settings-btn.disconnect:hover {
+  background: #dc2626;
+}
+
+.settings-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Order Panel (Bottom Sheet) --- */
+
+.order-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-color);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(100%);
+}
+
+.order-panel.visible {
+  transform: translateY(0);
+}
+
+.order-panel.peek {
+  padding: 8px 16px 16px;
+}
+
+.order-panel.expanded {
+  padding: 8px 16px 24px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.order-panel-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 12px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.handle-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Peek bar content */
+
+.order-peek-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-peek-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.peek-action {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.peek-action.buy {
+  background: rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+}
+
+.peek-action.sell {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.peek-legs {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.peek-qty {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* Order button */
+
+.order-place-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 140px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.order-place-btn.buy {
+  background: var(--buy-color);
+}
+
+.order-place-btn.buy:hover {
+  background: #2563eb;
+}
+
+.order-place-btn.sell {
+  background: var(--sell-color);
+}
+
+.order-place-btn.sell:hover {
+  background: #dc2626;
+}
+
+.order-place-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-prices {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
+}
+
+.btn-price-label {
+  opacity: 0.7;
+}
+
+/* Progress button */
+
+.order-progress-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  min-width: 140px;
+  text-align: center;
+}
+
+.order-progress-btn.buy {
+  background: rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.order-progress-btn.sell {
+  background: rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Expanded order form */
+
+.order-expanded-content {
+  padding: 8px 0;
+}
+
+.order-legs-table {
+  margin-bottom: 16px;
+}
+
+.order-legs-header {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.order-leg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.leg-action {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.leg-action.buy {
+  background: rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+}
+
+.leg-action.sell {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.leg-detail {
+  flex: 1;
+  color: var(--text-main);
+}
+
+.leg-price {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.order-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.order-field label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 60px;
+}
+
+.order-field input {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  max-width: 100px;
+}
+
+.order-field input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.order-bracket-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.bracket-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bracket-toggle:last-child {
+  margin-bottom: 0;
+}
+
+.bracket-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.bracket-toggle input[type="checkbox"] {
+  accent-color: var(--buy-color);
+}
+
+.bracket-price-input {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  outline: none;
+  max-width: 120px;
+}
+
+.bracket-price-input:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.order-submit-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+
+.order-submit-btn.buy {
+  background: var(--buy-color);
+}
+
+.order-submit-btn.buy:hover {
+  background: #2563eb;
+}
+
+.order-submit-btn.sell {
+  background: var(--sell-color);
+}
+
+.order-submit-btn.sell:hover {
+  background: #dc2626;
+}
+
+.order-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.order-cancel-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.order-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+/* Confirmation */
+
+.order-confirmation {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.confirmation-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.confirmation-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.confirmation-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.confirmation-detail span {
+  color: var(--text-muted);
+}
+
+.confirmation-detail strong {
+  color: var(--text-main);
+}
+
+.order-confirmation .settings-btn {
+  margin-top: 16px;
+}
+
+/* --- Animations --- */
+
 @keyframes flash-green {
   0% {
     background-color: var(--flash-green);
@@ -236,7 +817,8 @@ tr:hover td {
   animation: flash-red 1s ease-out;
 }
 
-/* Mobile Friendly */
+/* --- Mobile Friendly --- */
+
 @media (max-width: 768px) {
   body {
     padding: 0.5rem;
@@ -265,6 +847,7 @@ tr:hover td {
     width: auto;
     padding: 6px 8px;
     font-size: 0.8rem;
+    min-width: auto;
   }
 
   .tabs-container {
@@ -304,5 +887,34 @@ tr:hover td {
     width: 100%;
     order: 3;
     padding: 6px 10px !important;
+  }
+
+  /* Settings overlay full width on mobile */
+  .settings-overlay {
+    min-width: 260px;
+  }
+
+  /* Order panel adjustments */
+  .order-panel.peek {
+    padding: 6px 12px 12px;
+  }
+
+  .order-peek-info {
+    font-size: 0.75rem;
+  }
+
+  .order-place-btn {
+    min-width: 120px;
+    padding: 8px 12px;
+  }
+
+  .hamburger-btn {
+    font-size: 1.2rem;
+    padding: 4px 8px;
+  }
+
+  /* Adjust table bottom padding when order panel is visible */
+  .table-container {
+    max-height: 65vh;
   }
 }

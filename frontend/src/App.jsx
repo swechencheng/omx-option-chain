@@ -1,9 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import StraddleTable from './components/StraddleTable';
+import SettingsMenu from './components/SettingsMenu';
+import OrderPanel from './components/OrderPanel';
 import './index.css';
 
 const API_BASE = `http://${window.location.hostname}:5031/api`;
 const WS_URL = `ws://${window.location.hostname}:5031/ws/orderdepth`;
+
+// Generate or retrieve a persistent device ID
+function getDeviceId() {
+  let id = localStorage.getItem('omx_device_id');
+  if (!id) {
+    id = crypto.randomUUID ? crypto.randomUUID() : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem('omx_device_id', id);
+  }
+  return id;
+}
+
+const DEVICE_ID = getDeviceId();
 
 function App() {
   const [constituents, setConstituents] = useState([]);
@@ -14,6 +28,9 @@ function App() {
   const [realtimeData, setRealtimeData] = useState({});
   const [underlyingQuote, setUnderlyingQuote] = useState(null);
   const [autoFocus, setAutoFocus] = useState(true);
+  const [ibkrConnected, setIbkrConnected] = useState(false);
+  const [selectedLegs, setSelectedLegs] = useState([]);
+  const [walkState, setWalkState] = useState(null);
   
   const wsRef = useRef(null);
   const tableContainerRef = useRef(null);
@@ -58,6 +75,9 @@ function App() {
         }
       })
       .catch(err => console.error("Error fetching dates", err));
+    
+    // Clear legs when underlying changes
+    setSelectedLegs([]);
   }, [selectedUnderlying]);
 
   // Fetch options matrix when date or underlying changes
@@ -79,6 +99,9 @@ function App() {
         }
       })
       .catch(err => console.error("Error fetching options", err));
+    
+    // Clear legs when date changes
+    setSelectedLegs([]);
   }, [selectedUnderlying, selectedDate, endDates]);
 
   const subscribeWs = (orderbookIds, underlyingId) => {
@@ -126,9 +149,34 @@ function App() {
     }
   };
 
+  // Toggle a leg selection (add or remove)
+  const handleLegToggle = (leg) => {
+    if (!ibkrConnected) return; // Must be connected
+    if (walkState && (walkState.status === 'walking' || walkState.status === 'repricing')) {
+      return; // Cannot deselect or select during walk
+    }
+    setSelectedLegs(prev => {
+      const existing = prev.findIndex(
+        l => l.strike === leg.strike && l.right === leg.right && l.action === leg.action
+      );
+      if (existing >= 0) {
+        // Deselect
+        return prev.filter((_, i) => i !== existing);
+      } else {
+        // Select
+        return [...prev, leg];
+      }
+    });
+  };
+
   return (
     <div className="App">
       <div className="header-row">
+        <SettingsMenu
+          apiBase={API_BASE}
+          deviceId={DEVICE_ID}
+          onConnectionChange={setIbkrConnected}
+        />
         <h1>OMXS30 Option Chain</h1>
         
         {underlyingQuote && (
@@ -160,15 +208,40 @@ function App() {
         )}
 
         <div className="controls">
-          <select 
-            className="dropdown" 
-            value={selectedUnderlying} 
-            onChange={e => setSelectedUnderlying(e.target.value)}
-          >
-            {constituents.map(c => (
-              <option key={c.orderbookId} value={c.orderbookId}>{c.name}</option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <select 
+              className="dropdown" 
+              value={selectedUnderlying} 
+              onChange={e => setSelectedUnderlying(e.target.value)}
+            >
+              {constituents.map(c => (
+                <option key={c.orderbookId} value={c.orderbookId}>{c.name}</option>
+              ))}
+            </select>
+            {selectedLegs.length > 0 && !(walkState && (walkState.status === 'walking' || walkState.status === 'repricing')) && (
+              <button 
+                onClick={() => setSelectedLegs([])}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  color: '#ef4444',
+                  borderRadius: '8px',
+                  width: '35px',
+                  height: '35px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem',
+                  padding: 0,
+                  transition: 'all 0.2s'
+                }}
+                title="Clear all legs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -215,8 +288,23 @@ function App() {
           underlyingPrice={underlyingQuote ? (underlyingQuote.lastPrice || underlyingQuote.buyPrice) : null}
           autoFocus={autoFocus}
           containerRef={tableContainerRef}
+          selectedLegs={selectedLegs}
+          onLegToggle={handleLegToggle}
+          ibkrConnected={ibkrConnected}
         />
       </div>
+
+      <OrderPanel
+        selectedLegs={selectedLegs}
+        onClearLegs={() => setSelectedLegs([])}
+        wsRef={wsRef}
+        apiBase={API_BASE}
+        ibkrConnected={ibkrConnected}
+        underlyingId={selectedUnderlying}
+        selectedDate={selectedDate}
+        walkState={walkState}
+        onWalkStateChange={setWalkState}
+      />
     </div>
   );
 }

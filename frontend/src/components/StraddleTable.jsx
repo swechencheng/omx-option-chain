@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 
-const AnimatedCell = ({ value, className = "" }) => {
+const AnimatedCell = ({ value, className = "", onClick, selected, selectedPos, disabled }) => {
   const [flash, setFlash] = useState("");
   const prevValue = useRef(value);
 
@@ -18,10 +18,22 @@ const AnimatedCell = ({ value, className = "" }) => {
     prevValue.current = value;
   }, [value]);
 
-  return <td className={`${className} ${flash}`}>{value !== null && value !== undefined ? value : "-"}</td>;
+  const selClass = selected 
+    ? ` leg-selected-${selected}${selectedPos ? ` leg-selected-${selectedPos}` : ''}`
+    : '';
+
+  return (
+    <td
+      className={`${className} ${flash}${selClass}${disabled ? ' disabled-cell' : ''}`}
+      onClick={disabled ? undefined : onClick}
+      style={disabled ? { cursor: 'not-allowed', opacity: 0.5 } : (onClick ? { cursor: 'pointer' } : {})}
+    >
+      {value !== null && value !== undefined ? value : "-"}
+    </td>
+  );
 };
 
-const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, containerRef }) => {
+const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, containerRef, selectedLegs, onLegToggle, ibkrConnected }) => {
   const rowRefs = useRef({});
   const hasFocusedOnce = useRef(false);
 
@@ -72,6 +84,20 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
     return defaultData || {};
   };
 
+  // Check if a specific leg is selected
+  const isLegSelected = (strike, right, action) => {
+    if (!selectedLegs) return false;
+    return selectedLegs.some(
+      l => l.strike === strike && l.right === right && l.action === action
+    );
+  };
+
+  const handleCellClick = (strike, right, action, bidPrice, askPrice, name, orderbookId) => {
+    if (onLegToggle) {
+      onLegToggle({ strike, right, action, bidPrice, askPrice, name, orderbookId });
+    }
+  };
+
   return (
     <table>
       <thead>
@@ -105,22 +131,89 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
           
           const isClosest = strike === closestStrike;
 
+          // Selection state for each clickable cell
+          const callBidSelected = isLegSelected(strike, 'C', 'SELL') ? 'sell' : null;
+          const callAskSelected = isLegSelected(strike, 'C', 'BUY') ? 'buy' : null;
+          const putBidSelected = isLegSelected(strike, 'P', 'SELL') ? 'sell' : null;
+          const putAskSelected = isLegSelected(strike, 'P', 'BUY') ? 'buy' : null;
+          
+          const callBidDisabled = !ibkrConnected || rtCall.buyPrice === undefined || rtCall.buyPrice === null || rtCall.buyPrice === 0;
+          const callAskDisabled = !ibkrConnected || rtCall.sellPrice === undefined || rtCall.sellPrice === null || rtCall.sellPrice === 0;
+          const putBidDisabled = !ibkrConnected || rtPut.buyPrice === undefined || rtPut.buyPrice === null || rtPut.buyPrice === 0;
+          const putAskDisabled = !ibkrConnected || rtPut.sellPrice === undefined || rtPut.sellPrice === null || rtPut.sellPrice === 0;
+
           return (
             <tr 
               key={`${strike}-${idx}`}
               ref={el => rowRefs.current[strike] = el}
             >
-              <AnimatedCell value={rtCall.buyVolume} className="call-col" />
-              <AnimatedCell value={rtCall.buyPrice} className="call-col" />
-              <AnimatedCell value={rtCall.sellPrice} className="call-col" />
-              <AnimatedCell value={rtCall.sellVolume} className="call-col" />
+              <AnimatedCell
+                value={rtCall.buyVolume}
+                className="call-col"
+                selected={callBidSelected}
+                selectedPos="left"
+                disabled={callBidDisabled}
+                onClick={() => handleCellClick(strike, 'C', 'SELL', rtCall.buyPrice, rtCall.sellPrice, call.name, call.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtCall.buyPrice}
+                className="call-col"
+                selected={callBidSelected}
+                selectedPos="right"
+                disabled={callBidDisabled}
+                onClick={() => handleCellClick(strike, 'C', 'SELL', rtCall.buyPrice, rtCall.sellPrice, call.name, call.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtCall.sellPrice}
+                className="call-col"
+                selected={callAskSelected}
+                selectedPos="left"
+                disabled={callAskDisabled}
+                onClick={() => handleCellClick(strike, 'C', 'BUY', rtCall.buyPrice, rtCall.sellPrice, call.name, call.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtCall.sellVolume}
+                className="call-col"
+                selected={callAskSelected}
+                selectedPos="right"
+                disabled={callAskDisabled}
+                onClick={() => handleCellClick(strike, 'C', 'BUY', rtCall.buyPrice, rtCall.sellPrice, call.name, call.orderbookId)}
+              />
               
               <td className="strike-col" style={isClosest ? { color: '#38bdf8', background: 'rgba(255, 255, 255, 0.08)' } : {}}>{strike}</td>
               
-              <AnimatedCell value={rtPut.buyVolume} className="put-col" />
-              <AnimatedCell value={rtPut.buyPrice} className="put-col" />
-              <AnimatedCell value={rtPut.sellPrice} className="put-col" />
-              <AnimatedCell value={rtPut.sellVolume} className="put-col" />
+              <AnimatedCell
+                value={rtPut.buyVolume}
+                className="put-col"
+                selected={putBidSelected}
+                selectedPos="left"
+                disabled={putBidDisabled}
+                onClick={() => handleCellClick(strike, 'P', 'SELL', rtPut.buyPrice, rtPut.sellPrice, put.name, put.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtPut.buyPrice}
+                className="put-col"
+                selected={putBidSelected}
+                selectedPos="right"
+                disabled={putBidDisabled}
+                onClick={() => handleCellClick(strike, 'P', 'SELL', rtPut.buyPrice, rtPut.sellPrice, put.name, put.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtPut.sellPrice}
+                className="put-col"
+                selected={putAskSelected}
+                selectedPos="left"
+                disabled={putAskDisabled}
+                onClick={() => handleCellClick(strike, 'P', 'BUY', rtPut.buyPrice, rtPut.sellPrice, put.name, put.orderbookId)}
+              />
+              <AnimatedCell
+                value={rtPut.sellVolume}
+                className="put-col"
+                selected={putAskSelected}
+                selectedPos="right"
+                disabled={putAskDisabled}
+                onClick={() => handleCellClick(strike, 'P', 'BUY', rtPut.buyPrice, rtPut.sellPrice, put.name, put.orderbookId)}
+              />
             </tr>
           );
         })}
