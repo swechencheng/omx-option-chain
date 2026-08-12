@@ -2,6 +2,8 @@
 
 This project provides a real-time "straddle-style" option chain table for the constituents of the OMX Stockholm 30 (OMXS30) index, fetching live data directly from the Avanza API. It is also deeply integrated with Interactive Brokers (IBKR) to automatically execute trades using an advanced algorithmic "Walk-The-Book" pricing engine.
 
+![OMXS30 Option Chain](omx-option-chain.png)
+
 ## Functionality
 
 - **Live Market Data**: Displays real-time bid, ask, and volume data for call and put options via Avanza.
