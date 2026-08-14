@@ -108,6 +108,14 @@ tr:hover td {
   color: #fbcfe8;
 }
 
+td.itm {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+tr:hover td.itm {
+  background: rgba(255, 255, 255, 0.09);
+}
+
 .header-row {
   display: flex;
   justify-content: space-between;
@@ -793,19 +801,11 @@ tr:hover td {
   0% {
     background-color: var(--flash-green);
   }
-
-  100% {
-    background-color: transparent;
-  }
 }
 
 @keyframes flash-red {
   0% {
     background-color: var(--flash-red);
-  }
-
-  100% {
-    background-color: transparent;
   }
 }
 

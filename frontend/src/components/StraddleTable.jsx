@@ -144,6 +144,10 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
           const putBidDisabled = globallyDisabled || rtPut.buyPrice === undefined || rtPut.buyPrice === null || rtPut.buyPrice === 0;
           const putAskDisabled = globallyDisabled || rtPut.sellPrice === undefined || rtPut.sellPrice === null || rtPut.sellPrice === 0;
 
+          const isCallItm = underlyingPrice && strike < underlyingPrice;
+          const isPutItm = underlyingPrice && strike > underlyingPrice;
+
+
           return (
             <tr 
               key={`${strike}-${idx}`}
@@ -151,7 +155,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
             >
               <AnimatedCell
                 value={rtCall.buyVolume}
-                className="call-col"
+                className={`call-col ${isCallItm ? 'itm' : 'otm'}`}
                 selected={callBidSelected}
                 selectedPos="left"
                 disabled={callBidDisabled}
@@ -159,7 +163,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtCall.buyPrice}
-                className="call-col"
+                className={`call-col ${isCallItm ? 'itm' : 'otm'}`}
                 selected={callBidSelected}
                 selectedPos="right"
                 disabled={callBidDisabled}
@@ -167,7 +171,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtCall.sellPrice}
-                className="call-col"
+                className={`call-col ${isCallItm ? 'itm' : 'otm'}`}
                 selected={callAskSelected}
                 selectedPos="left"
                 disabled={callAskDisabled}
@@ -175,7 +179,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtCall.sellVolume}
-                className="call-col"
+                className={`call-col ${isCallItm ? 'itm' : 'otm'}`}
                 selected={callAskSelected}
                 selectedPos="right"
                 disabled={callAskDisabled}
@@ -186,7 +190,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               
               <AnimatedCell
                 value={rtPut.buyVolume}
-                className="put-col"
+                className={`put-col ${isPutItm ? 'itm' : 'otm'}`}
                 selected={putBidSelected}
                 selectedPos="left"
                 disabled={putBidDisabled}
@@ -194,7 +198,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtPut.buyPrice}
-                className="put-col"
+                className={`put-col ${isPutItm ? 'itm' : 'otm'}`}
                 selected={putBidSelected}
                 selectedPos="right"
                 disabled={putBidDisabled}
@@ -202,7 +206,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtPut.sellPrice}
-                className="put-col"
+                className={`put-col ${isPutItm ? 'itm' : 'otm'}`}
                 selected={putAskSelected}
                 selectedPos="left"
                 disabled={putAskDisabled}
@@ -210,7 +214,7 @@ const StraddleTable = ({ optionsData, realtimeData, underlyingPrice, autoFocus, 
               />
               <AnimatedCell
                 value={rtPut.sellVolume}
-                className="put-col"
+                className={`put-col ${isPutItm ? 'itm' : 'otm'}`}
                 selected={putAskSelected}
                 selectedPos="right"
                 disabled={putAskDisabled}
